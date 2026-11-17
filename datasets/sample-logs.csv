@@ -1,0 +1,11 @@
+timestamp,source_ip,event,username,destination_port,message
+10:00:01,192.168.1.5,LOGIN_FAILED,admin,0,Invalid password
+10:00:05,192.168.1.5,LOGIN_FAILED,admin,0,Invalid password
+10:00:10,192.168.1.5,LOGIN_FAILED,admin,0,Invalid password
+10:00:15,192.168.1.5,LOGIN_FAILED,admin,0,Invalid password
+10:01:00,192.168.1.8,CONNECTION,user1,443,Connection established
+10:01:05,192.168.1.8,CONNECTION,user1,80,Connection established
+10:01:10,192.168.1.8,CONNECTION,user1,22,Connection established
+10:02:00,192.168.1.10,HTTP_REQUEST,user2,80,SELECT * FROM users WHERE id=1 OR 1=1
+10:02:05,192.168.1.11,HTTP_REQUEST,user3,80,<script>alert(1)</script>
+10:03:00,192.168.1.12,LOGIN_SUCCESS,user4,0,Login successful

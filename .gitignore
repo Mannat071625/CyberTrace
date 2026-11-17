@@ -1,0 +1,7 @@
+backend/test.exe
+backend/test
+*.o
+*.exe
+.vscode/
+node_modules/
+.env
