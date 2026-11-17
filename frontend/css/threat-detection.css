@@ -1,0 +1,234 @@
+
+[hidden] {
+    display: none !important;
+}
+
+.detection-welcome {
+    margin: 35px 0;
+}
+
+.detection-welcome h1 {
+    font-size: clamp(25px, 3vw, 34px);
+    margin-bottom: 10px;
+}
+
+.detection-welcome > p:last-child {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.upload-section {
+    margin-top: 35px;
+}
+
+.upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 270px;
+    padding: 30px;
+    text-align: center;
+    background: var(--card);
+    border: 2px dashed #31516c;
+    border-radius: 14px;
+    transition: 0.2s;
+}
+
+.upload-box.drag-over {
+    border-color: var(--green);
+    background: #11252a;
+}
+
+.upload-icon {
+    display: grid;
+    place-items: center;
+    width: 55px;
+    height: 55px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+    background: #142a2a;
+    color: var(--green);
+    font-size: 30px;
+}
+
+.upload-box h3 {
+    margin-bottom: 9px;
+    font-size: 17px;
+}
+
+.upload-box p {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.browse-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 22px;
+    border-radius: 8px;
+    background: var(--green);
+    color: #07130f;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.browse-button:hover {
+    background: #54f5b7;
+}
+
+.upload-box .file-requirement {
+    margin-top: 16px;
+    font-size: 10px;
+}
+
+.file-information {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.file-information strong {
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.file-information p {
+    margin-top: 5px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.remove-file-button {
+    padding: 8px 12px;
+    border: 1px solid #713347;
+    border-radius: 6px;
+    background: #3a1c28;
+    color: #ff788d;
+    cursor: pointer;
+}
+
+.upload-message {
+    margin-top: 15px;
+    padding: 13px 15px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.upload-message.success {
+    color: var(--green);
+    border-color: #287b69;
+}
+
+.upload-message.error {
+    color: #ff788d;
+    border-color: #713347;
+}
+
+.expected-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.expected-columns span {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #152238;
+    color: var(--blue);
+    font-family: monospace;
+    font-size: 11px;
+}
+
+.preview-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.preview-stat {
+    padding: 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.preview-stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.preview-stat strong {
+    display: block;
+    margin-top: 10px;
+    color: var(--green);
+    font-size: 22px;
+}
+
+.preview-table-container {
+    max-height: 400px;
+}
+
+.preview-table-container table {
+    min-width: 850px;
+}
+
+.preview-table-container td {
+    max-width: 300px;
+    overflow-wrap: anywhere;
+}
+
+.preview-note {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.scan-action-area {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.scan-action-area button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.scan-action-area p {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@media (max-width: 700px) {
+    .preview-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-box {
+        padding: 22px 15px;
+    }
+
+    .file-information {
+        align-items: flex-start;
+    }
+}
