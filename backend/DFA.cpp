@@ -28,6 +28,7 @@ bool DFA::accepts(const string& input) {
     return finalStates.count(current) > 0;
 }
 
+
 vector<int> DFA::getTrace(const string& input) {
     vector<int> trace;
     int current = startState;
@@ -38,7 +39,7 @@ vector<int> DFA::getTrace(const string& input) {
         auto it = transitions.find({current, symbol});
 
         if (it == transitions.end())
-            return {};
+            break;
 
         current = it->second;
         trace.push_back(current);
@@ -46,6 +47,7 @@ vector<int> DFA::getTrace(const string& input) {
 
     return trace;
 }
+
 
 
 int DFA::getStartState() const {

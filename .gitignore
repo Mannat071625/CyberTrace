@@ -5,3 +5,5 @@ backend/test
 .vscode/
 node_modules/
 .env
+backend/server_test.cpp
+*.exe

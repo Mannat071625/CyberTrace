@@ -16,4 +16,5 @@ struct SecurityLog {
 class LogParser {
 public:
     static vector<SecurityLog> parseFile(const string& filename);
+    static vector<SecurityLog> parseContent(const string& content);
 };

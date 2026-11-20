@@ -1,13 +1,11 @@
-#include <sstream>
 #include "AttackDetector.h"
-#include <map>
-#include <algorithm>
-#include <set>
-#include <cctype>
-#include <algorithm>
 #include "RegexParser.h"
 #include "NFAtoDFA.h"
 #include "DFAMinimizer.h"
+#include <sstream>
+#include <map>
+#include <algorithm>
+#include <set>
 #include <cctype>
 
 
@@ -187,6 +185,24 @@ vector<DetectionAlert> AttackDetector::detectXSS(
             }
         }
     }
+
+    return alerts;
+}
+
+vector<DetectionAlert> AttackDetector::detectAll(
+    const vector<SecurityLog>& logs
+) {
+    vector<DetectionAlert> alerts;
+
+    auto bruteForce = detectBruteForce(logs);
+    auto portScan = detectPortScan(logs);
+    auto sqlInjection = detectSQLInjection(logs);
+    auto xss = detectXSS(logs);
+
+    alerts.insert(alerts.end(), bruteForce.begin(), bruteForce.end());
+    alerts.insert(alerts.end(), portScan.begin(), portScan.end());
+    alerts.insert(alerts.end(), sqlInjection.begin(), sqlInjection.end());
+    alerts.insert(alerts.end(), xss.begin(), xss.end());
 
     return alerts;
 }
