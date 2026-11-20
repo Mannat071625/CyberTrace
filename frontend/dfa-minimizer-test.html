@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTrace - DFA Minimization Tests</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #080d18;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .summary-card h2 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .summary-card p {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .test-card {
+            margin-bottom: 16px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pattern {
+            color: #c4b5fd;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pass {
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        .fail {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .details {
+            margin-top: 15px;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .comparison {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .comparison-card {
+            flex: 1;
+            min-width: 180px;
+            padding: 15px;
+            background: #080d18;
+            border-radius: 8px;
+        }
+
+        .comparison-card h3 {
+            margin: 0 0 8px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .comparison-card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .samples {
+            margin-top: 15px;
+            padding: 12px;
+            background: #080d18;
+            border-radius: 8px;
+        }
+
+        .sample-line {
+            padding: 7px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border-bottom: 1px solid #1e293b;
+            overflow-wrap: anywhere;
+        }
+
+        .sample-line:last-child {
+            border-bottom: none;
+        }
+
+        .rerun-button {
+            margin-top: 20px;
+            padding: 12px 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .rerun-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Automata Engine — DFA Minimization</h1>
+
+        <p class="subtitle">
+            Testing partition refinement and language equivalence.
+        </p>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h2>Total Tests</h2>
+                <p id="totalTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Passed</h2>
+                <p id="passedTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Failed</h2>
+                <p id="failedTests">0</p>
+            </div>
+        </div>
+
+        <div id="testResults"></div>
+
+        <button class="rerun-button" onclick="runTests()">
+            Run Tests Again
+        </button>
+    </div>
+
+    <script src="js/automata-engine.js"></script>
+    <script src="js/dfa-minimizer.js"></script>
+
+    <script>
+        const testCases = [
+            {
+                pattern: "a",
+                expectedMinStates: 3
+            },
+            {
+                pattern: "a|b",
+                expectedMinStates: 3
+            },
+            {
+                pattern: "ab",
+                expectedMinStates: 4
+            },
+            {
+                pattern: "a*",
+                expectedMinStates: 1
+            },
+            {
+                pattern: "(a|b)*abb",
+                expectedMinStates: 4
+            }
+        ];
+
+        function runDFA(dfa, input) {
+            let currentState = dfa.startState;
+
+            for (const symbol of input) {
+                const state = dfa.states.find(
+                    item => item.id === currentState
+                );
+
+                if (!state) {
+                    return false;
+                }
+
+                const transition = state.transitions.find(
+                    item => item.symbol === symbol
+                );
+
+                if (!transition) {
+                    return false;
+                }
+
+                currentState = transition.to;
+            }
+
+            const finalState = dfa.states.find(
+                item => item.id === currentState
+            );
+
+            return finalState ? finalState.isAccepting : false;
+        }
+
+        function generateStrings(alphabet, maxLength) {
+            const strings = [""];
+            let currentLevel = [""];
+
+            for (let length = 1; length <= maxLength; length++) {
+                const nextLevel = [];
+
+                for (const prefix of currentLevel) {
+                    for (const symbol of alphabet) {
+                        nextLevel.push(prefix + symbol);
+                    }
+                }
+
+                strings.push(...nextLevel);
+                currentLevel = nextLevel;
+            }
+
+            return strings;
+        }
+
+        function validateMinimizedDFA(original, minimized) {
+            const stateIds = minimized.states.map(
+                state => state.id
+            );
+
+            const uniqueStateIds =
+                new Set(stateIds).size === stateIds.length;
+
+            const startExists = stateIds.includes(
+                minimized.startState
+            );
+
+            const validTargets = minimized.transitions.every(
+                transition =>
+                    stateIds.includes(transition.from) &&
+                    stateIds.includes(transition.to)
+            );
+
+            const transitionsComplete = minimized.states.every(
+                state =>
+                    state.transitions.length === minimized.alphabet.length
+            );
+
+            const deterministic = minimized.states.every(state => {
+                const symbols = state.transitions.map(
+                    transition => transition.symbol
+                );
+
+                return new Set(symbols).size === symbols.length;
+            });
+
+            const acceptingStatesCorrect = minimized.states.every(
+                state =>
+                    state.isAccepting ===
+                    minimized.acceptingStates.includes(state.id)
+        );
+
+            const partitionCoverage = (() => {
+                const originalIds = original.states.map(
+                    state => state.id
+                );
+
+                const flattened = minimized.partitions.flat();
+
+                return (
+                    flattened.length === originalIds.length &&
+                    new Set(flattened).size === originalIds.length &&
+                    originalIds.every(id => flattened.includes(id))
+                );
+            })();
+
+            const checks = {
+                uniqueStateIds,
+                startExists,
+                validTargets,
+                transitionsComplete,
+                deterministic,
+                acceptingStatesCorrect,
+                partitionCoverage
+            };
+
+            return {
+                checks,
+                passed: Object.values(checks).every(Boolean)
+            };
+        }
+
+        function createElement(tag, className, text) {
+            const element = document.createElement(tag);
+
+            if (className) {
+                element.className = className;
+            }
+
+            if (text !== undefined) {
+                element.textContent = text;
+            }
+
+            return element;
+        }
+
+        function displayTest(test, original, minimized, validation, equivalence, error) {
+            const card = createElement("div", "test-card");
+
+            const header = createElement("div", "test-header");
+
+            header.append(
+                createElement(
+                    "span",
+                    "pattern",
+                    `Regex: ${test.pattern}`
+                )
+            );
+
+            const passed = !error &&
+                validation.passed &&
+                equivalence.passed &&
+                minimized.stateCount === test.expectedMinStates;
+
+            header.append(
+                createElement(
+                    "span",
+                    `status ${passed ? "pass" : "fail"}`,
+                    passed ? "PASS" : "FAIL"
+                )
+            );
+
+            card.appendChild(header);
+
+            if (error) {
+                card.appendChild(
+                    createElement("div", "details", "Error: " + error)
+                );
+
+                return {
+                    element: card,
+                    passed: false
+                };
+            }
+
+            const comparison = createElement(
+                "div",
+                "comparison"
+            );
+
+            const originalCard = createElement(
+                "div",
+                "comparison-card"
+            );
+
+            originalCard.append(
+                createElement("h3", "", "Original DFA"),
+                createElement(
+                    "p",
+                    "",
+                    `${original.stateCount} states`
+                )
+            );
+
+            const minimizedCard = createElement(
+                "div",
+                "comparison-card"
+            );
+
+            minimizedCard.append(
+                createElement("h3", "", "Minimized DFA"),
+                createElement(
+                    "p",
+                    "",
+                    `${minimized.stateCount} states`
+                )
+            );
+
+            const expectedCard = createElement(
+                "div",
+                "comparison-card"
+            );
+
+            expectedCard.append(
+                createElement("h3", "", "Expected Minimum"),
+                createElement(
+                    "p",
+                    "",
+                    `${test.expectedMinStates} states`
+                )
+            );
+
+            comparison.append(
+                originalCard,
+                minimizedCard,
+                expectedCard
+            );
+
+            card.appendChild(comparison);
+
+            const alphabet = original.alphabet;
+            const allStrings = generateStrings(alphabet, 5);
+
+            const mismatches = allStrings.filter(input =>
+                runDFA(original, input) !==
+                runDFA(minimized, input)
+            );
+
+            card.appendChild(
+                createElement(
+                    "div",
+                    "details",
+                    `Language comparison: ${allStrings.length} strings checked | ` +
+                    `Mismatches: ${mismatches.length} | ` +
+                    `Expected minimized states: ${test.expectedMinStates} | ` +
+                    `Actual: ${minimized.stateCount}`
+                )
+            );
+
+            const sampleBox = createElement("div", "samples");
+
+            sampleBox.appendChild(
+                createElement(
+                    "div",
+                    "sample-line",
+                    "Partition groups: " +
+                    minimized.partitions.map(
+                        partition => `{${partition.join(", ")}}`
+                    ).join(" | ")
+                )
+            );
+
+            Object.entries(validation.checks).forEach(
+                ([name, result]) => {
+                    sampleBox.appendChild(
+                        createElement(
+                            "div",
+                            "sample-line",
+                            `${name}: ${result ? "PASS" : "FAIL"}`
+                        )
+                    );
+                }
+            );
+
+            sampleBox.appendChild(
+                createElement(
+                    "div",
+                    "sample-line",
+                    `Language equivalence: ${equivalence.passed ? "PASS" : "FAIL"}`
+                )
+            );
+
+            if (mismatches.length > 0) {
+                sampleBox.appendChild(
+                    createElement(
+                        "div",
+                        "sample-line",
+                        "Mismatched inputs: " + mismatches.join(", ")
+                    )
+                );
+            }
+
+            card.appendChild(sampleBox);
+
+            return {
+                element: card,
+                passed
+            };
+        }
+
+        function runTests() {
+            const resultsContainer =
+                document.getElementById("testResults");
+
+            resultsContainer.replaceChildren();
+
+            let passed = 0;
+            let failed = 0;
+
+            testCases.forEach(test => {
+                let original;
+                let minimized;
+                let validation = {
+                    passed: false,
+                    checks: {}
+                };
+                let equivalence = {
+                    passed: false
+                };
+                let error = null;
+
+                try {
+                    const conversion =
+                        AutomataEngine.convertRegexToDFA(test.pattern);
+
+                    original = conversion.dfa;
+
+                    minimized =
+                        DFAMinimizer.minimizeDFA(original);
+
+                    validation =
+                        validateMinimizedDFA(original, minimized);
+
+                    const allStrings = generateStrings(
+                        original.alphabet,
+                        5
+                    );
+
+                    equivalence = {
+                        passed: allStrings.every(input =>
+                            runDFA(original, input) ===
+                            runDFA(minimized, input)
+                        )
+                    };
+                } catch (err) {
+                    error = err.message;
+                }
+
+                const result = displayTest(
+                    test,
+                    original,
+                    minimized,
+                    validation,
+                    equivalence,
+                    error
+                );
+
+                resultsContainer.appendChild(result.element);
+
+                if (result.passed) {
+                    passed++;
+                } else {
+                    failed++;
+                }
+            });
+
+            document.getElementById("totalTests").textContent =
+                testCases.length;
+
+            document.getElementById("passedTests").textContent =
+                passed;
+
+            document.getElementById("failedTests").textContent =
+                failed;
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+timestamp,source_ip,event,username,destination_port,message
+2026-11-20 10:00:00,192.168.1.20,login_success,pihoo,443,User logged in successfully
+2026-11-20 10:00:10,192.168.1.21,http_request,guest,80,Requested homepage
+2026-11-20 10:00:20,192.168.1.22,file_access,admin,445,Accessed shared folder
+2026-11-20 10:00:30,192.168.1.23,logout,user1,443,User logged out normally
+2026-11-20 10:00:40,192.168.1.24,dns_query,user2,53,Resolved domain successfully

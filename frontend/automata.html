@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTrace | Automata Visualizer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/automata.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">C</div>
+            <div>
+                <h2>CyberTrace</h2>
+                <span>SECURITY INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="nav-label">MAIN MENU</div>
+
+        <nav>
+            <a href="index.html" class="nav-link">◈ Dashboard</a>
+            <a href="index.html" class="nav-link">⌕ Threat Detection</a>
+            <a href="automata.html" class="nav-link active">⌘ Automata Visualizer</a>
+            <a href="index.html#regex" class="nav-link">⌗ Regex Playground</a>
+            <a href="#" class="nav-link">◷ Detection History</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="system-status">
+                <span class="status-dot"></span>
+                System Ready
+                <small>DEMO MODE</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <p class="breadcrumb">Workspace / Automata Visualizer</p>
+                <h2>Automata Visualizer</h2>
+            </div>
+
+            <div class="topbar-right">
+                <span class="online-indicator">● SYSTEM ONLINE</span>
+                <div class="profile">CT</div>
+            </div>
+        </header>
+
+        <section class="automata-welcome">
+            <p class="eyebrow">THEORY OF COMPUTATION ENGINE</p>
+            <h1>Automata Visualizer</h1>
+            <p>Explore how regular expressions are transformed into finite automata.</p>
+        </section>
+
+        <!-- REGEX INPUT -->
+
+        <section class="section regex-input-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Regular Expression</h2>
+                    <p>Enter a regular expression to generate its automata representation</p>
+                </div>
+                <span class="demo-tag">DYNAMIC ENGINE</span>
+            </div>
+
+            <div class="regex-controls">
+
+                <div class="regex-input-wrapper">
+                    <label for="regexInput">REGEX PATTERN</label>
+
+                    <input
+                        type="text"
+                        id="regexInput"
+                        value="a*"
+                        placeholder="Enter regex (e.g. (a|b)*abb)"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+
+                <button id="generateAutomataBtn" class="scan-button" type="button">
+                    Generate Automata
+                </button>
+
+            </div>
+
+            <div class="regex-display">
+                <div class="regex-value">
+                    <span>REGEX</span>
+                    <strong id="regexValue">a*</strong>
+                </div>
+
+                <div class="regex-description" id="regexDescription">
+                    Enter a regular expression and generate its NFA, DFA and minimized DFA.
+                </div>
+            </div>
+
+            <p class="automata-note" id="automataStatus" role="status">
+                Ready to generate automata.
+            </p>
+
+        </section>
+
+        <!-- AUTOMATA TRANSFORMATION -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Automata Transformation</h2>
+                    <p>Select a stage to view its states and transitions</p>
+                </div>
+                <span class="demo-tag">INTERACTIVE</span>
+            </div>
+
+            <div class="automata-tabs">
+
+                <button class="automata-tab active" data-type="nfa" type="button">
+                    NFA
+                </button>
+
+                <button class="automata-tab" data-type="dfa" type="button">
+                    DFA
+                </button>
+
+                <button class="automata-tab" data-type="minimized" type="button">
+                    Minimized DFA
+                </button>
+
+            </div>
+
+            <div class="automata-panel">
+
+                <div class="automata-canvas" id="automataCanvas">
+                </div>
+
+                <div class="automata-legend">
+                    <div>
+                        <span class="legend-state normal-state"></span>
+                        Normal State
+                    </div>
+
+                    <div>
+                        <span class="legend-state accepting-state"></span>
+                        Accepting State
+                    </div>
+
+                    <div>
+                        <span class="legend-arrow">→</span>
+                        Transition
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- STRING TESTING -->
+
+        <section class="section string-testing-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>String Testing</h2>
+                    <p>Test whether a string is accepted by the generated automaton</p>
+                </div>
+                <span class="demo-tag">DFA SIMULATOR</span>
+            </div>
+
+            <div class="string-test-controls">
+
+                <div class="string-input-wrapper">
+                    <label for="testStringInput">INPUT STRING</label>
+
+                    <input
+                        type="text"
+                        id="testStringInput"
+                        placeholder="Enter a string to test"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+
+                <button id="testStringBtn" class="scan-button" type="button">
+                    Test String
+                </button>
+
+            </div>
+
+            <div id="stringTestResult" class="string-test-result" role="status">
+                <p>Generate an automaton first, then enter a string to test.</p>
+            </div>
+
+            <div id="stringTraceSection" class="string-trace-section">
+
+                <h3>Transition Trace</h3>
+
+                <div id="stringTrace" class="string-trace">
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- AUTOMATA INFORMATION -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Automata Information</h2>
+                    <p>Properties of the selected automaton</p>
+                </div>
+            </div>
+
+            <div class="automata-stats">
+
+                <div class="automata-stat">
+                    <span>Total States</span>
+                    <strong id="stateCount">0</strong>
+                </div>
+
+                <div class="automata-stat">
+                    <span>Accepting States</span>
+                    <strong id="acceptingCount">0</strong>
+                </div>
+
+                <div class="automata-stat">
+                    <span>Transitions</span>
+                    <strong id="transitionCount">0</strong>
+                </div>
+
+                <div class="automata-stat">
+                    <span>Alphabet</span>
+                    <strong id="alphabetValue">—</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- TRANSITION TABLE -->
+
+        <section class="section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Transition Details</h2>
+                    <p>State transition table for the selected automaton</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>FROM STATE</th>
+                            <th>INPUT SYMBOL</th>
+                            <th>TO STATE</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="transitionTableBody"></tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- EXPLANATION -->
+
+        <section class="section automata-explanation">
+
+            <h2 id="explanationTitle">How the NFA works</h2>
+
+            <p id="explanationText">
+                Enter a regular expression and generate its automata to see how the transformation works.
+            </p>
+
+        </section>
+
+        <footer>
+            CyberTrace © 2026 | Automata-Based Cyberattack Pattern Detector
+        </footer>
+
+    </main>
+
+</div>
+
+<!-- AUTOMATA ALGORITHMS: LOAD IN DEPENDENCY ORDER -->
+
+<script src="js/automata-engine.js"></script>
+<script src="js/dfa-minimizer.js"></script>
+<script src="js/visualizer.js"></script>
+<script src="js/string-simulator.js"></script>
+<script src="js/automata.js"></script>
+
+</body>
+</html>
