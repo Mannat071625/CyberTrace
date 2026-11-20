@@ -32,8 +32,7 @@
             <a href="#detection" class="nav-link" data-page="detection">⌕ Threat Detection</a>
             <a href="automata.html" class="nav-link">⌘ Automata Visualizer</a>
             <a href="#regex" class="nav-link" data-page="regex">⌗ Regex Playground</a>
-            <a href="#" class="nav-link">◷ Detection History</a>
-            <a href="#" class="nav-link">▤ Reports</a>
+            <a href="#history" class="nav-link" data-page="history">◷ Detection History</a>
         </nav>
 
         <div class="sidebar-bottom">
@@ -385,7 +384,49 @@
                         Upload a valid CSV file to continue.
                     </p>
                 </div>
+            <div id="scanResultsSection" class="scan-results-section" hidden>
 
+    <div class="section-heading">
+        <div>
+            <h2>Security Scan Results</h2>
+            <p id="scanResultsDescription">Analysis of uploaded security logs</p>
+        </div>
+        <span class="demo-tag">SCAN RESULTS</span>
+    </div>
+
+    <div class="scan-results-summary">
+        <div class="scan-result-stat">
+            <span>Total Alerts</span>
+            <h3 id="totalAlertsCount">0</h3>
+        </div>
+    </div>
+    <div class="attack-breakdown-grid">
+
+    <div class="attack-breakdown-card">
+        <span>Brute Force</span>
+        <h3 id="bruteForceCount">0</h3>
+    </div>
+
+    <div class="attack-breakdown-card">
+        <span>Port Scanning</span>
+        <h3 id="portScanningCount">0</h3>
+    </div>
+
+    <div class="attack-breakdown-card">
+        <span>SQL Injection</span>
+        <h3 id="sqlInjectionCount">0</h3>
+    </div>
+
+    <div class="attack-breakdown-card">
+        <span>XSS</span>
+        <h3 id="scanXssCount">0</h3>
+    </div>
+
+</div>
+
+    <div id="alertsContainer" class="alerts-container"></div>
+
+</div>
             </section>
 
             <footer>
@@ -508,7 +549,32 @@
             </footer>
 
         </div>
+        <div id="historyPage" hidden>
 
+    <header class="topbar">
+        <div>
+            <p class="breadcrumb">Workspace / Detection History</p>
+            <h2>Detection History</h2>
+            
+        </div>
+    </header>
+  <section class="section">
+
+    <div class="section-heading">
+        <div>
+            <h2>Previous Scans</h2>
+            <p>Review your completed security scans</p>
+        </div>
+    </div>
+
+    <div id="historyContainer"></div>
+
+</section>
+    <footer>
+        CyberTrace © 2026 | Automata-Based Cyberattack Pattern Detector
+    </footer>
+
+</div>
     </main>
 
 </div>

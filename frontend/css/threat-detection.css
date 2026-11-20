@@ -232,3 +232,33 @@
         align-items: flex-start;
     }
 }
+.attack-breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.attack-breakdown-card {
+    padding: 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--card-bg);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.attack-breakdown-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+}
+
+.attack-breakdown-card span {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.attack-breakdown-card h3 {
+    margin: 12px 0 0;
+    font-size: 28px;
+    font-weight: 800;
+}

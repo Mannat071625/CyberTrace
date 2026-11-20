@@ -22,6 +22,7 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
+    margin-top: 25px;
 }
 
 .regex-value {
@@ -477,4 +478,36 @@
     .string-trace-table td {
         padding: 11px 12px;
     }
+}
+.regex-input-wrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: 750px;
+}
+
+.regex-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+    margin-bottom: 30px;
+}
+
+.regex-input-wrapper input {
+    width: 100%;
+    padding: 7px 15px;
+    background: #0b1423;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+}
+
+.regex-input-wrapper input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(69, 167, 255, 0.12);
+}
+
+.regex-input-wrapper input::placeholder {
+    color: var(--muted);
+    opacity: 0.8;
 }
