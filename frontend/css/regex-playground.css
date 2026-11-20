@@ -1,0 +1,343 @@
+
+/* ================================
+   REGEX PLAYGROUND
+================================ */
+
+.regex-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Pattern configuration */
+
+.regex-config-section {
+    padding: 24px;
+}
+
+.regex-config-grid {
+    display: grid;
+    grid-template-columns: 1fr 160px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.regex-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.regex-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.regex-field input,
+.regex-field textarea {
+    width: 100%;
+    padding: 13px 15px;
+    background: #0b1120;
+    border: 1px solid #263247;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.regex-field input:focus,
+.regex-field textarea:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.regex-field textarea {
+    resize: vertical;
+    min-height: 160px;
+    line-height: 1.7;
+}
+
+.regex-field input::placeholder,
+.regex-field textarea::placeholder {
+    color: #64748b;
+}
+
+.regex-field small {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.regex-test-field {
+    margin-bottom: 22px;
+}
+
+/* Buttons */
+
+.regex-button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.regex-test-button,
+.regex-clear-button {
+    padding: 11px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.regex-test-button {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: white;
+}
+
+.regex-test-button:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.regex-clear-button {
+    background: #111827;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+}
+
+.regex-clear-button:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+
+/* Results section */
+
+.regex-results-section {
+    padding: 24px;
+}
+
+.regex-result-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px;
+    background: #0b1120;
+    border: 1px solid #263247;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.regex-result-message {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.regex-result-message.success {
+    color: #4ade80;
+}
+
+.regex-result-message.error {
+    color: #f87171;
+}
+
+.regex-result-message.warning {
+    color: #fbbf24;
+}
+
+.regex-result-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.regex-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #111827;
+    border: 1px solid #263247;
+    border-radius: 7px;
+}
+
+.regex-stat-label {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.regex-stat-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+/* Match results */
+
+.regex-matches-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.regex-match-card {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px;
+    background: #0b1120;
+    border: 1px solid #263247;
+    border-radius: 10px;
+    transition: border-color 0.2s ease;
+}
+
+.regex-match-card:hover {
+    border-color: #3b82f6;
+}
+
+.regex-match-index {
+    min-width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37, 99, 235, 0.15);
+    color: #60a5fa;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.regex-match-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.regex-match-text {
+    display: inline-block;
+    padding: 5px 9px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 5px;
+    color: #6ee7b7;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.regex-match-details {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.regex-match-detail {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.regex-match-detail strong {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.regex-match-groups {
+    margin-top: 12px;
+    padding: 12px;
+    background: #111827;
+    border-radius: 7px;
+}
+
+.regex-match-groups-title {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.regex-group-item {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+.regex-group-name {
+    color: #a78bfa;
+}
+
+.regex-group-value {
+    color: #e2e8f0;
+    font-family: "JetBrains Mono", "Courier New", monospace;
+    word-break: break-word;
+}
+
+/* Empty states */
+
+.regex-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    background: #0b1120;
+    border: 1px dashed #334155;
+    border-radius: 10px;
+}
+
+.regex-empty-state h3 {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.regex-empty-state p {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* Responsive layout */
+
+@media (max-width: 768px) {
+    .regex-config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .regex-result-summary {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .regex-result-stats {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .regex-match-card {
+        padding: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .regex-config-section,
+    .regex-results-section {
+        padding: 16px;
+    }
+
+    .regex-button-group {
+        flex-direction: column;
+    }
+
+    .regex-test-button,
+    .regex-clear-button {
+        width: 100%;
+    }
+
+    .regex-match-details {
+        flex-direction: column;
+        gap: 6px;
+    }
+}

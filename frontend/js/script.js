@@ -12,18 +12,23 @@ const navLinks = document.querySelectorAll(".nav-link");
 function showPage(pageName) {
     const dashboardPage = document.getElementById("dashboardPage");
     const detectionPage = document.getElementById("detectionPage");
+    const regexPage = document.getElementById("regexPage");
 
-    if (!dashboardPage || !detectionPage) {
+    const pages = {
+        dashboard: dashboardPage,
+        detection: detectionPage,
+        regex: regexPage
+    };
+
+    if (!pages[pageName]) {
         return;
     }
 
-    if (pageName === "detection") {
-        dashboardPage.hidden = true;
-        detectionPage.hidden = false;
-    } else {
-        dashboardPage.hidden = false;
-        detectionPage.hidden = true;
-    }
+    Object.entries(pages).forEach(([name, page]) => {
+        if (page) {
+            page.hidden = name !== pageName;
+        }
+    });
 
     navLinks.forEach(link => {
         link.classList.toggle(
@@ -42,7 +47,7 @@ navLinks.forEach(link => {
     link.addEventListener("click", event => {
         const pageName = link.dataset.page;
 
-        if (pageName === "dashboard" || pageName === "detection") {
+        if (pageName === "dashboard" || pageName === "detection" || pageName === "regex") {
             event.preventDefault();
             showPage(pageName);
         }

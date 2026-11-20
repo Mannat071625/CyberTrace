@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTrace - NFA Engine Tests</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #080d18;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .summary-card h2 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .summary-card p {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .test-card {
+            margin-bottom: 16px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pattern {
+            color: #c4b5fd;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pass {
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        .fail {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .details {
+            margin-top: 15px;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .transitions {
+            margin-top: 15px;
+            padding: 12px;
+            background: #080d18;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .transitions h3 {
+            font-size: 13px;
+            color: #60a5fa;
+        }
+
+        .transition-line {
+            font-family: monospace;
+            font-size: 12px;
+            color: #cbd5e1;
+            margin: 5px 0;
+            white-space: nowrap;
+        }
+
+        .error-text {
+            color: #fca5a5;
+        }
+
+        .rerun-button {
+            margin-top: 20px;
+            padding: 12px 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .rerun-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Automata Engine — NFA Tests</h1>
+        <p class="subtitle">
+            Testing Thompson's Construction for Regex to NFA conversion.
+        </p>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h2>Total Tests</h2>
+                <p id="totalTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Passed</h2>
+                <p id="passedTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Failed</h2>
+                <p id="failedTests">0</p>
+            </div>
+        </div>
+
+        <div id="testResults"></div>
+
+        <button class="rerun-button" onclick="runTests()">
+            Run Tests Again
+        </button>
+    </div>
+
+    <script src="js/automata-engine.js"></script>
+
+    <script>
+        const testCases = [
+            {
+                pattern: "a",
+                expectedStates: 2,
+                expectedTransitions: 1
+            },
+            {
+                pattern: "a|b",
+                expectedStates: 6,
+                expectedTransitions: 6
+            },
+            {
+                pattern: "ab",
+                expectedStates: 4,
+                expectedTransitions: 3
+            },
+            {
+                pattern: "a*",
+                expectedStates: 4,
+                expectedTransitions: 5
+            },
+            {
+                pattern: "(a|b)*abb",
+                expectedStates: 14,
+                expectedTransitions: 16
+            }
+        ];
+
+        function validateNFA(nfa, test) {
+            const stateIds = nfa.states.map(state => state.id);
+            const uniqueIds = new Set(stateIds);
+
+            const startExists = uniqueIds.has(nfa.startState);
+            const acceptExists = uniqueIds.has(nfa.acceptState);
+            const uniqueStates = uniqueIds.size === nfa.states.length;
+
+            const validTargets = nfa.states.every(state =>
+                state.transitions.every(transition =>
+                    uniqueIds.has(transition.to)
+                )
+            );
+
+            const correctStateCount =
+                nfa.stateCount === test.expectedStates;
+
+            const correctTransitionCount =
+                nfa.transitionCount === test.expectedTransitions;
+
+            return {
+                passed:
+                    startExists &&
+                    acceptExists &&
+                    uniqueStates &&
+                    validTargets &&
+                    correctStateCount &&
+                    correctTransitionCount,
+                checks: {
+                    startExists,
+                    acceptExists,
+                    uniqueStates,
+                    validTargets,
+                    correctStateCount,
+                    correctTransitionCount
+                }
+            };
+        }
+
+        function createElement(tag, className, text) {
+            const element = document.createElement(tag);
+
+            if (className) {
+                element.className = className;
+            }
+
+            if (text !== undefined) {
+                element.textContent = text;
+            }
+
+            return element;
+        }
+
+        function displayTest(test, index, nfa, validation, error) {
+            const card = createElement("div", "test-card");
+
+            const header = createElement("div", "test-header");
+
+            const pattern = createElement(
+                "span",
+                "pattern",
+                `${index + 1}. Regex: ${test.pattern}`
+            );
+
+            const status = createElement(
+                "span",
+                `status ${validation.passed ? "pass" : "fail"}`,
+                validation.passed ? "PASS" : "FAIL"
+            );
+
+            header.append(pattern, status);
+            card.appendChild(header);
+
+            const details = createElement("div", "details");
+
+            if (error) {
+                details.className = "details error-text";
+                details.textContent = "Error: " + error;
+                card.appendChild(details);
+                return card;
+            }
+
+            details.textContent =
+                `States: ${nfa.stateCount} (expected ${test.expectedStates}) | ` +
+                `Transitions: ${nfa.transitionCount} (expected ${test.expectedTransitions}) | ` +
+                `Start: q${nfa.startState} | Accept: q${nfa.acceptState} | ` +
+                `Alphabet: { ${nfa.alphabet.join(", ")} } | ` +
+                `Postfix: ${nfa.postfix}`;
+
+            card.appendChild(details);
+
+            const transitionBox = createElement(
+                "div",
+                "transitions"
+            );
+
+            transitionBox.appendChild(
+                createElement("h3", "", "Generated NFA Transitions")
+            );
+
+            nfa.states.forEach(state => {
+                state.transitions.forEach(transition => {
+                    const symbol = transition.symbol === "ε"
+                        ? "ε"
+                        : transition.symbol;
+
+                    const line = createElement(
+                        "div",
+                        "transition-line",
+                        `q${state.id} -- ${symbol} --> q${transition.to}`
+                    );
+
+                    transitionBox.appendChild(line);
+                });
+            });
+
+            card.appendChild(transitionBox);
+
+            const checkBox = createElement("div", "details");
+            checkBox.textContent =
+                "Checks: " +
+                Object.entries(validation.checks)
+                    .map(([name, passed]) =>
+                        `${name}: ${passed ? "OK" : "FAILED"}`
+                    )
+                    .join(" | ");
+
+            card.appendChild(checkBox);
+
+            return card;
+        }
+
+        function runTests() {
+            const resultsContainer = document.getElementById("testResults");
+
+            resultsContainer.replaceChildren();
+
+            let passed = 0;
+            let failed = 0;
+
+            testCases.forEach((test, index) => {
+                let nfa = null;
+                let validation = {
+                    passed: false,
+                    checks: {}
+                };
+                let error = null;
+
+                try {
+                    nfa = AutomataEngine.convertRegexToNFA(test.pattern);
+                    validation = validateNFA(nfa, test);
+
+                    if (validation.passed) {
+                        passed++;
+                    } else {
+                        failed++;
+                    }
+                } catch (err) {
+                    failed++;
+                    error = err.message;
+                }
+
+                resultsContainer.appendChild(
+                    displayTest(test, index, nfa, validation, error)
+                );
+            });
+
+            document.getElementById("totalTests").textContent =
+                testCases.length;
+
+            document.getElementById("passedTests").textContent =
+                passed;
+
+            document.getElementById("failedTests").textContent =
+                failed;
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

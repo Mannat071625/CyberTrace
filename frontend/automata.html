@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,7 +30,7 @@
             <a href="index.html" class="nav-link">◈ Dashboard</a>
             <a href="index.html" class="nav-link">⌕ Threat Detection</a>
             <a href="automata.html" class="nav-link active">⌘ Automata Visualizer</a>
-            <a href="#" class="nav-link">⌗ Regex Playground</a>
+            <a href="index.html" class="nav-link">⌗ Regex Playground</a>
             <a href="#" class="nav-link">◷ Detection History</a>
             <a href="#" class="nav-link">▤ Reports</a>
         </nav>
@@ -64,14 +65,37 @@
             <p>Explore how regular expressions are transformed into finite automata.</p>
         </section>
 
+        <!-- REGEX INPUT -->
+
         <section class="section regex-input-section">
 
             <div class="section-heading">
                 <div>
                     <h2>Regular Expression</h2>
-                    <p>Enter a regular expression to explore its automata representation</p>
+                    <p>Enter a regular expression to generate its automata representation</p>
                 </div>
-                <span class="demo-tag">DEMO EXAMPLE</span>
+                <span class="demo-tag">DYNAMIC ENGINE</span>
+            </div>
+
+            <div class="regex-controls">
+
+                <div class="regex-input-wrapper">
+                    <label for="regexInput">REGEX PATTERN</label>
+
+                    <input
+                        type="text"
+                        id="regexInput"
+                        value="a*"
+                        placeholder="Enter regex (e.g. (a|b)*abb)"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+
+                <button id="generateAutomataBtn" class="scan-button" type="button">
+                    Generate Automata
+                </button>
+
             </div>
 
             <div class="regex-display">
@@ -80,16 +104,18 @@
                     <strong id="regexValue">a*</strong>
                 </div>
 
-                <div class="regex-description">
-                    Zero or more occurrences of the symbol a
+                <div class="regex-description" id="regexDescription">
+                    Enter a regular expression and generate its NFA, DFA and minimized DFA.
                 </div>
             </div>
 
-            <p class="automata-note">
-                This visualizer currently demonstrates the example a*. It is not yet connected to the C++ engine.
+            <p class="automata-note" id="automataStatus" role="status">
+                Ready to generate automata.
             </p>
 
         </section>
+
+        <!-- AUTOMATA TRANSFORMATION -->
 
         <section class="section">
 
@@ -103,35 +129,21 @@
 
             <div class="automata-tabs">
 
-                <button class="automata-tab active" data-type="nfa">
+                <button class="automata-tab active" data-type="nfa" type="button">
                     NFA
-                    <span>4 States</span>
                 </button>
 
-                <button class="automata-tab" data-type="dfa">
+                <button class="automata-tab" data-type="dfa" type="button">
                     DFA
-                    <span>2 States</span>
                 </button>
 
-                <button class="automata-tab" data-type="minimized">
+                <button class="automata-tab" data-type="minimized" type="button">
                     Minimized DFA
-                    <span>1 State</span>
                 </button>
 
             </div>
 
             <div class="automata-panel">
-
-                <div class="automata-panel-heading">
-                    <div>
-                        <h3 id="automataTitle">Nondeterministic Finite Automaton</h3>
-                        <p id="automataDescription">
-                            Thompson construction with epsilon transitions
-                        </p>
-                    </div>
-
-                    <span class="automata-type" id="automataType">NFA</span>
-                </div>
 
                 <div class="automata-canvas" id="automataCanvas">
                 </div>
@@ -157,6 +169,55 @@
 
         </section>
 
+        <!-- STRING TESTING -->
+
+        <section class="section string-testing-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>String Testing</h2>
+                    <p>Test whether a string is accepted by the generated automaton</p>
+                </div>
+                <span class="demo-tag">DFA SIMULATOR</span>
+            </div>
+
+            <div class="string-test-controls">
+
+                <div class="string-input-wrapper">
+                    <label for="testStringInput">INPUT STRING</label>
+
+                    <input
+                        type="text"
+                        id="testStringInput"
+                        placeholder="Enter a string to test"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                </div>
+
+                <button id="testStringBtn" class="scan-button" type="button">
+                    Test String
+                </button>
+
+            </div>
+
+            <div id="stringTestResult" class="string-test-result" role="status">
+                <p>Generate an automaton first, then enter a string to test.</p>
+            </div>
+
+            <div id="stringTraceSection" class="string-trace-section">
+
+                <h3>Transition Trace</h3>
+
+                <div id="stringTrace" class="string-trace">
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- AUTOMATA INFORMATION -->
+
         <section class="section">
 
             <div class="section-heading">
@@ -170,27 +231,29 @@
 
                 <div class="automata-stat">
                     <span>Total States</span>
-                    <strong id="stateCount">4</strong>
+                    <strong id="stateCount">0</strong>
                 </div>
 
                 <div class="automata-stat">
                     <span>Accepting States</span>
-                    <strong id="acceptingCount">1</strong>
+                    <strong id="acceptingCount">0</strong>
                 </div>
 
                 <div class="automata-stat">
                     <span>Transitions</span>
-                    <strong id="transitionCount">5</strong>
+                    <strong id="transitionCount">0</strong>
                 </div>
 
                 <div class="automata-stat">
                     <span>Alphabet</span>
-                    <strong id="alphabetValue">a</strong>
+                    <strong id="alphabetValue">—</strong>
                 </div>
 
             </div>
 
         </section>
+
+        <!-- TRANSITION TABLE -->
 
         <section class="section">
 
@@ -217,14 +280,14 @@
 
         </section>
 
+        <!-- EXPLANATION -->
+
         <section class="section automata-explanation">
 
             <h2 id="explanationTitle">How the NFA works</h2>
 
             <p id="explanationText">
-                The NFA uses epsilon transitions to represent the zero-or-more repetition in a*. 
-                It can reach the accepting state without consuming any input, and it can also 
-                repeatedly consume the symbol a.
+                Enter a regular expression and generate its automata to see how the transformation works.
             </p>
 
         </section>
@@ -237,6 +300,12 @@
 
 </div>
 
+<!-- AUTOMATA ALGORITHMS: LOAD IN DEPENDENCY ORDER -->
+
+<script src="js/automata-engine.js"></script>
+<script src="js/dfa-minimizer.js"></script>
+<script src="js/visualizer.js"></script>
+<script src="js/string-simulator.js"></script>
 <script src="js/automata.js"></script>
 
 </body>

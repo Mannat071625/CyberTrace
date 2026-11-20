@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberTrace - DFA Tests</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #080d18;
+            color: #e2e8f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .summary-card h2 {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .summary-card p {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .test-card {
+            margin-bottom: 16px;
+            padding: 20px;
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pattern {
+            color: #c4b5fd;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pass {
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        .fail {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .details {
+            margin-top: 15px;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .samples {
+            margin-top: 15px;
+            padding: 12px;
+            background: #080d18;
+            border-radius: 8px;
+        }
+
+        .sample-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 7px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .sample-line:last-child {
+            border-bottom: none;
+        }
+
+        .rerun-button {
+            margin-top: 20px;
+            padding: 12px 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .rerun-button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Automata Engine — DFA Tests</h1>
+
+        <p class="subtitle">
+            Testing NFA to DFA conversion using Subset Construction.
+        </p>
+
+        <div class="summary">
+            <div class="summary-card">
+                <h2>Total Tests</h2>
+                <p id="totalTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Passed</h2>
+                <p id="passedTests">0</p>
+            </div>
+
+            <div class="summary-card">
+                <h2>Failed</h2>
+                <p id="failedTests">0</p>
+            </div>
+        </div>
+
+        <div id="testResults"></div>
+
+        <button class="rerun-button" onclick="runTests()">
+            Run Tests Again
+        </button>
+    </div>
+
+    <script src="js/automata-engine.js"></script>
+
+    <script>
+        const testCases = [
+            {
+                pattern: "a",
+                samples: [
+                    { input: "a", expected: true },
+                    { input: "", expected: false },
+                    { input: "aa", expected: false }
+                ]
+            },
+            {
+                pattern: "a|b",
+                samples: [
+                    { input: "a", expected: true },
+                    { input: "b", expected: true },
+                    { input: "ab", expected: false },
+                    { input: "", expected: false }
+                ]
+            },
+            {
+                pattern: "ab",
+                samples: [
+                    { input: "ab", expected: true },
+                    { input: "a", expected: false },
+                    { input: "b", expected: false },
+                    { input: "aba", expected: false }
+                ]
+            },
+            {
+                pattern: "a*",
+                samples: [
+                    { input: "", expected: true },
+                    { input: "a", expected: true },
+                    { input: "aaaa", expected: true },
+                    { input: "b", expected: false }
+                ]
+            },
+            {
+                pattern: "(a|b)*abb",
+                samples: [
+                    { input: "abb", expected: true },
+                    { input: "aabb", expected: true },
+                    { input: "babb", expected: true },
+                    { input: "ababb", expected: true },
+                    { input: "ab", expected: false },
+                    { input: "aab", expected: false },
+                    { input: "", expected: false }
+                ]
+            }
+        ];
+
+        function runDFA(dfa, input) {
+            let currentState = dfa.startState;
+
+            for (const symbol of input) {
+                const state = dfa.states[currentState];
+
+                const transition = state.transitions.find(
+                    item => item.symbol === symbol
+                );
+
+                if (!transition) {
+                    return false;
+                }
+
+                currentState = transition.to;
+            }
+
+            return dfa.states[currentState].isAccepting;
+        }
+
+        function validateDFA(dfa) {
+            const stateIds = dfa.states.map(state => state.id);
+            const uniqueIds = new Set(stateIds);
+
+            const uniqueStates =
+                uniqueIds.size === dfa.states.length;
+
+            const startExists =
+                uniqueIds.has(dfa.startState);
+
+            const acceptingStatesValid =
+                dfa.states.every(state =>
+                    state.isAccepting ===
+                    dfa.acceptingStates.includes(state.id)
+                );
+
+            const uniqueSubsets = new Set(
+                dfa.states.map(state =>
+                    state.subset.join(",")
+                )
+            );
+
+            const subsetsUnique =
+                uniqueSubsets.size === dfa.states.length;
+
+            const validTargets = dfa.transitions.every(
+                transition =>
+                    uniqueIds.has(transition.from) &&
+                    uniqueIds.has(transition.to)
+            );
+
+            const completeTransitions = dfa.states.every(
+                state =>
+                    state.transitions.length === dfa.alphabet.length
+            );
+
+            const deterministic = dfa.states.every(state => {
+                const symbols = state.transitions.map(
+                    transition => transition.symbol
+                );
+
+                return new Set(symbols).size === symbols.length;
+            });
+
+            return {
+                passed:
+                    uniqueStates &&
+                    startExists &&
+                    acceptingStatesValid &&
+                    subsetsUnique &&
+                    validTargets &&
+                    completeTransitions &&
+                    deterministic,
+                checks: {
+                    uniqueStates,
+                    startExists,
+                    acceptingStatesValid,
+                    subsetsUnique,
+                    validTargets,
+                    completeTransitions,
+                    deterministic
+                }
+            };
+        }
+
+        function createElement(tag, className, text) {
+            const element = document.createElement(tag);
+
+            if (className) {
+                element.className = className;
+            }
+
+            if (text !== undefined) {
+                element.textContent = text;
+            }
+
+            return element;
+        }
+
+        function displayTest(test, dfa, validation, sampleResults, error) {
+            const card = createElement("div", "test-card");
+
+            const header = createElement("div", "test-header");
+
+            header.append(
+                createElement(
+                    "span",
+                    "pattern",
+                    `Regex: ${test.pattern}`
+                )
+            );
+
+            const passed =
+                !error &&
+                validation.passed &&
+                sampleResults.every(result => result.passed);
+
+            header.append(
+                createElement(
+                    "span",
+                    `status ${passed ? "pass" : "fail"}`,
+                    passed ? "PASS" : "FAIL"
+                )
+            );
+
+            card.appendChild(header);
+
+            if (error) {
+                card.appendChild(
+                    createElement(
+                        "div",
+                        "details",
+                        "Error: " + error
+                    )
+                );
+
+                return {
+                    element: card,
+                    passed: false
+                };
+            }
+
+            card.appendChild(
+                createElement(
+                    "div",
+                    "details",
+                    `DFA States: ${dfa.stateCount} | ` +
+                    `Transitions: ${dfa.transitionCount} | ` +
+                    `Alphabet: { ${dfa.alphabet.join(", ")} } | ` +
+                    `Start: D${dfa.startState} | ` +
+                    `Accepting: { ${dfa.acceptingStates.map(id => "D" + id).join(", ")} }`
+                )
+            );
+
+            const sampleBox = createElement("div", "samples");
+
+            sampleResults.forEach(result => {
+                const inputLabel = result.input === ""
+                    ? 'Input: "" (empty string)'
+                    : `Input: "${result.input}"`;
+
+                const expectedLabel = result.expected
+                    ? "Expected ACCEPT"
+                    : "Expected REJECT";
+
+                const actualLabel = result.actual
+                    ? "Actual ACCEPT"
+                    : "Actual REJECT";
+
+                const line = createElement(
+                    "div",
+                    "sample-line",
+                    `${inputLabel} | ${expectedLabel} | ${actualLabel} | ${result.passed ? "PASS" : "FAIL"}`
+                );
+
+                sampleBox.appendChild(line);
+            });
+
+            card.appendChild(sampleBox);
+
+            card.appendChild(
+                createElement(
+                    "div",
+                    "details",
+                    "Structural checks: " +
+                    Object.entries(validation.checks)
+                        .map(([name, passed]) =>
+                            `${name}: ${passed ? "OK" : "FAILED"}`
+                        )
+                        .join(" | ")
+                )
+            );
+
+            return {
+                element: card,
+                passed
+            };
+        }
+
+        function runTests() {
+            const resultsContainer =
+                document.getElementById("testResults");
+
+            resultsContainer.replaceChildren();
+
+            let passed = 0;
+            let failed = 0;
+
+            testCases.forEach(test => {
+                let dfa;
+                let validation;
+                let sampleResults = [];
+                let error = null;
+
+                try {
+                    const conversion =
+                        AutomataEngine.convertRegexToDFA(test.pattern);
+
+                    dfa = conversion.dfa;
+
+                    validation = validateDFA(dfa);
+
+                    sampleResults = test.samples.map(sample => {
+                        const actual = runDFA(dfa, sample.input);
+
+                        return {
+                            input: sample.input,
+                            expected: sample.expected,
+                            actual: actual,
+                            passed: actual === sample.expected
+                        };
+                    });
+                } catch (err) {
+                    error = err.message;
+                    validation = {
+                        passed: false,
+                        checks: {}
+                    };
+                }
+
+                const result = displayTest(
+                    test,
+                    dfa,
+                    validation,
+                    sampleResults,
+                    error
+                );
+
+                resultsContainer.appendChild(result.element);
+
+                if (result.passed) {
+                    passed++;
+                } else {
+                    failed++;
+                }
+            });
+
+            document.getElementById("totalTests").textContent =
+                testCases.length;
+
+            document.getElementById("passedTests").textContent =
+                passed;
+
+            document.getElementById("failedTests").textContent =
+                failed;
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

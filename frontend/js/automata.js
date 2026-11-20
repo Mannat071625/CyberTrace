@@ -1,195 +1,370 @@
 
-const automataData = {
-    nfa: {
-        title: "Nondeterministic Finite Automaton",
-        description: "Thompson construction with epsilon transitions",
-        states: 4,
-        accepting: 1,
-        transitionCount: 5,
-        alphabet: "a",
-        explanationTitle: "How the NFA works",
-        explanationText:
-            "The NFA uses epsilon transitions to represent the zero-or-more repetition in a*. It can reach the accepting state without consuming any input, and it can also repeatedly consume the symbol a.",
-        transitions: [
-            ["q0", "ε", "q1"],
-            ["q0", "ε", "q3"],
-            ["q1", "a", "q2"],
-            ["q2", "ε", "q1"],
-            ["q2", "ε", "q3"]
-        ],
-        svg: `
-            <svg viewBox="0 0 850 300" role="img" aria-label="NFA state diagram for a star">
-                <defs>
-                    <marker id="nfaArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#8794a9"/>
-                    </marker>
-                    <marker id="nfaStart" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#20df9a"/>
-                    </marker>
-                </defs>
+document.addEventListener("DOMContentLoaded", () => {
+    const regexInput = document.getElementById("regexInput");
+    const generateButton = document.getElementById("generateAutomataBtn");
+    const regexValue = document.getElementById("regexValue");
+    const regexDescription = document.getElementById("regexDescription");
+    const status = document.getElementById("automataStatus");
 
-                <path class="start-arrow" d="M25 145 L95 145" marker-end="url(#nfaStart)"/>
-                <path class="edge" d="M145 135 L285 135" marker-end="url(#nfaArrow)"/>
-                <text class="edge-label" x="215" y="120">ε</text>
-                <path class="edge" d="M125 120 Q320 15 690 115" marker-end="url(#nfaArrow)"/>
-                <text class="edge-label" x="400" y="55">ε</text>
-                <path class="edge" d="M345 135 L485 135" marker-end="url(#nfaArrow)"/>
-                <text class="edge-label" x="415" y="120">a</text>
-                <path class="edge" d="M505 165 Q415 270 325 165" marker-end="url(#nfaArrow)"/>
-                <text class="edge-label" x="415" y="230">ε</text>
-                <path class="edge" d="M545 135 L685 135" marker-end="url(#nfaArrow)"/>
-                <text class="edge-label" x="615" y="120">ε</text>
+    const tabs = document.querySelectorAll(".automata-tab");
+    const canvas = document.getElementById("automataCanvas");
 
-                <circle class="state-circle" cx="120" cy="145" r="27"/>
-                <text class="state-label" x="120" y="145">q0</text>
+    const stateCount = document.getElementById("stateCount");
+    const acceptingCount = document.getElementById("acceptingCount");
+    const transitionCount = document.getElementById("transitionCount");
+    const alphabetValue = document.getElementById("alphabetValue");
 
-                <circle class="state-circle" cx="315" cy="145" r="27"/>
-                <text class="state-label" x="315" y="145">q1</text>
+    const transitionTableBody = document.getElementById("transitionTableBody");
+    const explanationTitle = document.getElementById("explanationTitle");
+    const explanationText = document.getElementById("explanationText");
 
-                <circle class="state-circle" cx="515" cy="145" r="27"/>
-                <text class="state-label" x="515" y="145">q2</text>
+    const testStringInput = document.getElementById("testStringInput");
+    const testStringButton = document.getElementById("testStringBtn");
+    const stringTestResult = document.getElementById("stringTestResult");
+    const stringTraceSection = document.getElementById("stringTraceSection");
+    const stringTrace = document.getElementById("stringTrace");
 
-                <circle class="state-circle accepting-circle" cx="715" cy="145" r="27"/>
-                <circle class="state-circle accepting-circle" cx="715" cy="145" r="21"/>
-                <text class="state-label" x="715" y="145">q3</text>
+    let currentType = "nfa";
+    let generatedAutomata = null;
 
-                <text class="edge-label" x="715" y="195">Final</text>
-            </svg>
-        `
-    },
+    function showStatus(message, isError = false) {
+        if (!status) return;
 
-    dfa: {
-        title: "Deterministic Finite Automaton",
-        description: "Subset construction from the NFA",
-        states: 2,
-        accepting: 2,
-        transitionCount: 2,
-        alphabet: "a",
-        explanationTitle: "How the DFA works",
-        explanationText:
-            "The subset construction combines NFA states into DFA states. Both states are accepting because the expression a* accepts the empty string and every string containing only the symbol a. Each state has exactly one transition for the input symbol a.",
-        transitions: [
-            ["A", "a", "B"],
-            ["B", "a", "B"]
-        ],
-        svg: `
-            <svg viewBox="0 0 850 300" role="img" aria-label="DFA state diagram for a star">
-                <defs>
-                    <marker id="dfaArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#8794a9"/>
-                    </marker>
-                    <marker id="dfaStart" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#20df9a"/>
-                    </marker>
-                </defs>
-
-                <path class="start-arrow" d="M75 150 L185 150" marker-end="url(#dfaStart)"/>
-                <path class="edge" d="M240 150 L565 150" marker-end="url(#dfaArrow)"/>
-                <text class="edge-label" x="400" y="135">a</text>
-                <path class="edge" d="M600 120 C600 35 770 35 770 120" marker-end="url(#dfaArrow)"/>
-                <text class="edge-label" x="685" y="42">a</text>
-
-                <circle class="state-circle accepting-circle" cx="215" cy="150" r="29"/>
-                <circle class="state-circle accepting-circle" cx="215" cy="150" r="23"/>
-                <text class="state-label" x="215" y="150">A</text>
-
-                <circle class="state-circle accepting-circle" cx="595" cy="150" r="29"/>
-                <circle class="state-circle accepting-circle" cx="595" cy="150" r="23"/>
-                <text class="state-label" x="595" y="150">B</text>
-
-                <text class="edge-label" x="215" y="205">Accepting</text>
-                <text class="edge-label" x="595" y="205">Accepting</text>
-            </svg>
-        `
-    },
-
-    minimized: {
-        title: "Minimized Deterministic Finite Automaton",
-        description: "Equivalent accepting states merged",
-        states: 1,
-        accepting: 1,
-        transitionCount: 1,
-        alphabet: "a",
-        explanationTitle: "How minimization works",
-        explanationText:
-            "The two DFA states are equivalent: both are accepting, and both transition to an accepting state on input a. They can therefore be merged into one state. The resulting one-state DFA accepts every string consisting only of zero or more a symbols.",
-        transitions: [
-            ["M0", "a", "M0"]
-        ],
-        svg: `
-            <svg viewBox="0 0 850 300" role="img" aria-label="Minimized DFA state diagram for a star">
-                <defs>
-                    <marker id="minArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#8794a9"/>
-                    </marker>
-                    <marker id="minStart" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#20df9a"/>
-                    </marker>
-                </defs>
-
-                <path class="start-arrow" d="M220 150 L365 150" marker-end="url(#minStart)"/>
-                <path class="edge" d="M395 120 C395 25 590 25 590 120" marker-end="url(#minArrow)"/>
-                <text class="edge-label" x="490" y="30">a</text>
-
-                <circle class="state-circle accepting-circle" cx="400" cy="150" r="31"/>
-                <circle class="state-circle accepting-circle" cx="400" cy="150" r="24"/>
-                <text class="state-label" x="400" y="150">M0</text>
-
-                <text class="edge-label" x="400" y="210">Accepting</text>
-            </svg>
-        `
+        status.textContent = message;
+        status.classList.toggle("error", isError);
+        status.classList.toggle("success", !isError);
     }
-};
 
-function renderAutomaton(type) {
-    const data = automataData[type];
+    function clearStringTest() {
+        stringTestResult.innerHTML = "";
+        stringTestResult.className = "string-test-result";
 
-    document.getElementById("automataTitle").textContent = data.title;
-    document.getElementById("automataDescription").textContent = data.description;
+        const message = document.createElement("p");
+        message.textContent =
+            "Generate an automaton first, then enter a string to test.";
 
-    document.getElementById("automataType").textContent =
-        type === "minimized" ? "MINIMIZED DFA" : type.toUpperCase();
+        stringTestResult.appendChild(message);
 
-    document.getElementById("automataCanvas").innerHTML = data.svg;
+        stringTrace.innerHTML = "";
+        stringTraceSection.style.display = "none";
+    }
 
-    document.getElementById("stateCount").textContent = data.states;
-    document.getElementById("acceptingCount").textContent = data.accepting;
-    document.getElementById("transitionCount").textContent = data.transitionCount;
-    document.getElementById("alphabetValue").textContent = data.alphabet;
+    function clearAutomata() {
+        generatedAutomata = null;
 
-    document.getElementById("explanationTitle").textContent =
-        data.explanationTitle;
+        canvas.innerHTML = "";
 
-    document.getElementById("explanationText").textContent =
-        data.explanationText;
+        stateCount.textContent = "0";
+        acceptingCount.textContent = "0";
+        transitionCount.textContent = "0";
+        alphabetValue.textContent = "—";
 
-    const tableBody = document.getElementById("transitionTableBody");
-    tableBody.replaceChildren();
+        transitionTableBody.innerHTML = "";
 
-    data.transitions.forEach(transition => {
-        const row = document.createElement("tr");
+        regexValue.textContent = "—";
+        regexDescription.textContent =
+            "Enter a valid regular expression to generate automata.";
 
-        transition.forEach(value => {
-            const cell = document.createElement("td");
-            cell.textContent = value;
-            row.appendChild(cell);
+        explanationTitle.textContent = "Automata Explanation";
+        explanationText.textContent =
+            "The automata explanation will appear here after generation.";
+
+        clearStringTest();
+    }
+
+    function normalizeNFA(nfa) {
+        return {
+            states: nfa.states.map(state => ({
+                ...state,
+                name: String(state.id),
+                isAccepting: state.id === nfa.acceptState
+            })),
+            startState: nfa.startState,
+            acceptingStates: [nfa.acceptState],
+            alphabet: nfa.alphabet,
+            transitions: nfa.states.flatMap(state =>
+                state.transitions.map(transition => ({
+                    from: state.id,
+                    symbol: transition.symbol,
+                    to: transition.to
+                }))
+            )
+        };
+    }
+
+    function normalizeDFA(dfa) {
+        return {
+            ...dfa,
+            states: dfa.states,
+            startState: dfa.startState,
+            acceptingStates: dfa.acceptingStates,
+            alphabet: dfa.alphabet,
+            transitions: dfa.transitions
+        };
+    }
+
+    function getTransitions(automaton) {
+        if (Array.isArray(automaton.transitions)) {
+            return automaton.transitions;
+        }
+
+        return automaton.states.flatMap(state =>
+            (state.transitions || []).map(transition => ({
+                from: state.id,
+                symbol: transition.symbol,
+                to: transition.to
+            }))
+        );
+    }
+
+    function updateStats(automaton) {
+        stateCount.textContent = automaton.states.length;
+        acceptingCount.textContent = automaton.acceptingStates.length;
+        transitionCount.textContent = getTransitions(automaton).length;
+        alphabetValue.textContent = automaton.alphabet.join(", ") || "ε";
+    }
+
+    function updateTransitionTable(automaton) {
+        transitionTableBody.innerHTML = "";
+
+        getTransitions(automaton).forEach(transition => {
+            const row = document.createElement("tr");
+
+            [transition.from, transition.symbol, transition.to].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value === "epsilon" ? "ε" : value;
+                row.appendChild(cell);
+            });
+
+            transitionTableBody.appendChild(row);
+        });
+    }
+
+    function updateExplanation(type) {
+        const explanations = {
+            nfa: {
+                title: "NFA Explanation",
+                text: "The NFA is constructed from the regular expression using Thompson's construction. It can contain epsilon transitions and multiple possible paths for an input."
+            },
+            dfa: {
+                title: "DFA Explanation",
+                text: "The DFA is generated from the NFA using subset construction and epsilon closures. Each state and input symbol has a deterministic transition."
+            },
+            minimized: {
+                title: "Minimized DFA Explanation",
+                text: "Equivalent DFA states are merged through partition refinement, producing a smaller automaton while preserving the language accepted."
+            }
+        };
+
+        explanationTitle.textContent = explanations[type].title;
+        explanationText.textContent = explanations[type].text;
+    }
+
+    function renderAutomaton(type) {
+        if (!generatedAutomata) return;
+
+        const automaton = generatedAutomata[type];
+
+        updateStats(automaton);
+        updateTransitionTable(automaton);
+        updateExplanation(type);
+
+        if (type === "nfa") {
+            AutomataVisualizer.render(automaton, "nfa", canvas);
+        } else if (type === "dfa") {
+            AutomataVisualizer.render(automaton, "dfa", canvas);
+        } else {
+            AutomataVisualizer.render(automaton, "minimized", canvas);
+        }
+    }
+
+    function switchTab(type) {
+        currentType = type;
+
+        tabs.forEach(tab => {
+            tab.classList.toggle("active", tab.dataset.type === type);
         });
 
-        tableBody.appendChild(row);
-    });
+        renderAutomaton(type);
+    }
 
-    document.querySelectorAll(".automata-tab").forEach(button => {
-        button.classList.toggle(
-            "active",
-            button.dataset.type === type
+    function displayStringResult(result, input) {
+        stringTestResult.innerHTML = "";
+        stringTestResult.className = "string-test-result";
+
+        const heading = document.createElement("h3");
+        heading.textContent = result.accepted ? "STRING ACCEPTED" : "STRING REJECTED";
+
+        const detail = document.createElement("p");
+        detail.textContent = result.accepted
+            ? `The string "${input}" is accepted by the minimized DFA.`
+            : `The string "${input}" is rejected by the minimized DFA.`;
+
+        stringTestResult.classList.add(
+            result.accepted ? "accepted" : "rejected"
         );
-    });
-}
 
-document.querySelectorAll(".automata-tab").forEach(button => {
-    button.addEventListener("click", () => {
-        renderAutomaton(button.dataset.type);
+        stringTestResult.appendChild(heading);
+        stringTestResult.appendChild(detail);
+
+        displayTrace(result.trace, result.finalState, result.accepted);
+    }
+
+    function displayTrace(trace, finalState, accepted) {
+        stringTrace.innerHTML = "";
+        stringTraceSection.style.display = "block";
+
+        const table = document.createElement("table");
+        table.className = "string-trace-table";
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        ["STEP", "CURRENT STATE", "INPUT", "NEXT STATE"].forEach(label => {
+            const th = document.createElement("th");
+            th.textContent = label;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+
+        trace.forEach((step, index) => {
+            const row = document.createElement("tr");
+
+            const values = [
+                index,
+                step.state,
+                step.input,
+                step.nextState === null ? "No transition" : step.nextState
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            if (step.nextState === null) {
+                row.classList.add("trace-failed");
+            }
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        stringTrace.appendChild(table);
+
+        const finalMessage = document.createElement("p");
+        finalMessage.className = "trace-final-state";
+        finalMessage.textContent = accepted
+            ? `Final state: ${finalState} — Accepting state`
+            : `Final state: ${finalState} — ${trace.some(step => step.nextState === null)
+                ? "Transition failed"
+                : "Non-accepting state"}`;
+
+        stringTrace.appendChild(finalMessage);
+    }
+
+    function testString() {
+        if (!generatedAutomata) {
+            stringTestResult.innerHTML = "";
+            stringTestResult.className = "string-test-result rejected";
+
+            const message = document.createElement("p");
+            message.textContent = "Please generate an automaton before testing a string.";
+
+            stringTestResult.appendChild(message);
+            stringTrace.innerHTML = "";
+            stringTraceSection.style.display = "none";
+            return;
+        }
+
+        const input = testStringInput.value;
+
+        try {
+            const result = StringSimulator.simulate(
+                generatedAutomata.minimized,
+                input
+            );
+
+            displayStringResult(result, input);
+        } catch (error) {
+            stringTestResult.innerHTML = "";
+            stringTestResult.className = "string-test-result rejected";
+
+            const message = document.createElement("p");
+            message.textContent = error.message || "Unable to simulate this string.";
+
+            stringTestResult.appendChild(message);
+            stringTrace.innerHTML = "";
+            stringTraceSection.style.display = "none";
+
+            console.error("String simulation error:", error);
+        }
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            switchTab(tab.dataset.type);
+        });
     });
+
+    generateButton.addEventListener("click", generateAutomata);
+
+    regexInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            generateAutomata();
+        }
+    });
+
+    testStringButton.addEventListener("click", testString);
+
+    testStringInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            testString();
+        }
+    });
+
+    function generateAutomata() {
+        const regex = regexInput.value.trim();
+
+        if (!regex) {
+            clearAutomata();
+            showStatus("Please enter a regular expression.", true);
+            return;
+        }
+
+        try {
+            const result = AutomataEngine.convertRegexToDFA(regex);
+
+            const nfa = normalizeNFA(result.nfa);
+            const dfa = normalizeDFA(result.dfa);
+            const minimized = DFAMinimizer.minimizeDFA(dfa);
+
+            generatedAutomata = {
+                nfa,
+                dfa,
+                minimized
+            };
+
+            regexValue.textContent = regex;
+            regexDescription.textContent =
+                "Automata generated dynamically from your regular expression.";
+
+            showStatus("Automata generated successfully.");
+
+            clearStringTest();
+            switchTab(currentType);
+        } catch (error) {
+            clearAutomata();
+            showStatus(error.message || "Invalid regular expression.", true);
+            console.error("Automata generation error:", error);
+        }
+    }
+
+    clearStringTest();
+    generateAutomata();
 });
-
-renderAutomaton("nfa");
